@@ -1,0 +1,31 @@
+# Utilise l'image de base Debian 11.6
+FROM debian:11.6
+
+# Met à jour les packages et installe les dépendances
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    ssh \
+    sshpass \
+    wget \
+    curl \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python3-dev \
+    vim \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installe Ansible via pip  #RUN pip3 install ansible
+RUN python3 -m pip install ansible
+RUN echo "export PATH=\"$PATH:/home/user/.local/bin\"" >> ~/.bashrc
+
+
+# Copie les playbooks dans le conteneur
+COPY playbooks /playbooks
+
+# Définit le répertoire de travail par défaut
+WORKDIR /playbooks
+
+CMD ["ansible-playbook", "Playbook_Debian_Docker.yaml", "-u", "ansible", "--ask-become-pass"]

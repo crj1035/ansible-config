@@ -1,0 +1,31 @@
+version: '3'
+services:
+  # git:
+  #   image: alpine/git
+  #   volumes:
+  #     - ./vote:/app
+
+  # jenkins:
+  #   image: jenkins/jenkins:lts
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - ./jenkins_home:/var/jenkins_home
+
+  # ansible:
+  #   image: ansible/ansible-runner
+  #   volumes:
+  #     - ./ansible:/ansible
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
+    ports:
+      - 9200:9200
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.15.1
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.15.1
+    ports:
+      - 5601:5601

@@ -1,0 +1,50 @@
+---
+- name: Install Jenkins (Ubuntu et debian)
+  # lien d'installation https://pkg.jenkins.io/debian-stable/
+  # Groupe d'hôtes ou adresse IP
+  hosts: 10.0.2.5
+  gather_facts: true
+  become: true
+  
+  tasks:
+    - name: Update APT cache
+      ansible.builtin.apt:
+        update_cache: yes
+    
+    - name: Import Jenkins APT repository key
+      apt_key:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        state: present
+
+    - name: Add Jenkins APT repository
+      #apt_repository:
+      #repo: echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+      command: echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+      #state: present
+
+    # - name: Add Key 
+    #   command: curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    #   register: curl_output
+    # - name: Import Jenkins key
+    #   command: sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+    #   args:
+    #     stdin: "{{ curl_output.stdout }}"
+ 
+    # - name: Add Jenkins APT repository
+    #   command: echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+    - name: Update APT cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install fontconfig and OpenJDK 11 JRE
+      ansible.builtin.apt:
+        name:
+          - fontconfig
+          - openjdk-11-jre
+        state: present
+
+    - name: Install Jenkins
+      ansible.builtin.apt:
+        name: jenkins
+        state: present

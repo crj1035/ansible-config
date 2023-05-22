@@ -1,0 +1,90 @@
+---
+# Playbook lancé avec la commande : ansible-playbook test2.yaml -u ansible --ask-become-pass
+
+
+- name: Install Docker on Ubuntu
+  hosts: 10.0.2.5
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Suppression d'une ancienne version de Docker et docker-compose
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+          - docker-compose
+        state: absent
+
+    - name: ca-certificates et curl et gnupg et software-properties-common
+      ansible.builtin.apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
+        state: present
+
+    - name: Create /etc/apt/keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      
+    - name: Check if Docker GPG key exists
+      stat:
+        path: /etc/apt/keyrings/docker.gpg
+      register: docker_gpg_key
+    - name: Remove existing Docker GPG key
+      file: 
+        path: /etc/apt/keyrings/docker.gpg
+        state: absent
+      when: docker_gpg_key.stat.exists
+
+    - name: Download Docker GPG key
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg
+      register: curl_output
+    - name: Import Docker GPG key
+      command: sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+      args:
+        stdin: "{{ curl_output.stdout }}"
+ 
+    - name: chmod sur docker.gpg
+      command: chmod a+r /etc/apt/keyrings/docker.gpg
+
+    - name: Add Docker repository
+      command: echo "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: Update APT cache
+      command: sudo apt-get update
+
+ 
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+
+    - name: Install Docker
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Install prerequisites for docker-compose
+      ansible.builtin.apt:
+        name:
+          - python3-pip
+          - python3-setuptools
+          - virtualenv
+
+    - name: Install docker-compose
+      pip:
+        name: 
+          - docker-compose
