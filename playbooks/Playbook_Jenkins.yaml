@@ -2,11 +2,22 @@
 - name: Install Jenkins (Ubuntu et debian)
   # lien d'installation https://pkg.jenkins.io/debian-stable/
   # Groupe d'hôtes ou adresse IP
-  hosts: 10.0.2.7
+  hosts: 172.16.0.89
   gather_facts: true
   become: true
   
   tasks:
+
+    - name: Add curl wget
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - default-jre
+          - gnupg2 
+          - apt-transport-https
+        state: present
+
     - name: Add Key 
       command: curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
       register: curl_output
@@ -16,7 +27,8 @@
         stdin: "{{ curl_output.stdout }}"
  
     - name: Add Jenkins APT repository
-      command: echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+       ansible.builtin.shell: 
+        'echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee -a /etc/apt/sources.list.d/jenkins.list'
 
     - name: Update APT cache
       ansible.builtin.apt:
@@ -29,7 +41,12 @@
           - openjdk-11-jre
         state: present
 
+    - name: Update APT cache
+      ansible.builtin.apt:
+        update_cache: yes
+
     - name: Install Jenkins
       ansible.builtin.apt:
         name: jenkins
         state: present
+
