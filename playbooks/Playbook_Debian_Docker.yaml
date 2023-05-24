@@ -3,30 +3,34 @@
 
 
 - name: Install Docker on Debian
-  hosts: 10.0.2.5
+  # NEW-SRV-1 : 172.16.0.133
+  # NEW-SRV-2 : 172.16.0.247
+  hosts: 172.16.0.133
   gather_facts: true
   become: true
 
   tasks:
-    # - name: Suppression d'une ancienne version de Docker
-    #   ansible.builtin.apt:
-    #     name:
-    #       - docker-ce
-    #       - docker-ce-cli
-    #       - containerd.io
-    #       - docker-buildx-plugin
-    #       - docker-compose-plugin
-    #     state: absent
+    - name: Suppression d'une ancienne version de Docker
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: absent
 
     - name: Update APT cache
-      command: sudo apt-get update
-
+      ansible.builtin.apt:
+        update_cache: yes
+    
     - name: ca-certificates et curl et gnupg et software-properties-common
       ansible.builtin.apt:
         name: 
           - ca-certificates
           - curl
           - gnupg
+          - apt-transport-https
         state: present
 
     - name: Create /etc/apt/keyrings directory
@@ -57,16 +61,25 @@
       command: chmod a+r /etc/apt/keyrings/docker.gpg
 
     - name: Add Docker repository
-      command: echo "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      #command: echo "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      # Enlève le fichier s'il existe
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/docker.list
+        state: absent
+      # Installe le fichier 
+      ansible.builtin.shell: 
+        'echo "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
 
     - name: Update APT cache
-      command: sudo apt-get update
+      ansible.builtin.apt:
+        update_cache: yes
 
- 
     - name: Add Docker APT repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
-
+        #repo: deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+        ansible.builtin.shell: 
+          'echo "deb [arch=amd64] https://download.docker.com/{{ ansible_system | lower }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable" | sudo tee /etc/apt/sources.list.d/docker.list'
+    
     - name: Install Docker
       ansible.builtin.apt:
         name:

@@ -2,7 +2,8 @@
 - name: Install Jenkins (Ubuntu et debian)
   # lien d'installation https://pkg.jenkins.io/debian-stable/
   # Groupe d'hôtes ou adresse IP
-  hosts: 172.16.0.89
+  #172.16.0.89
+  hosts: 172.16.0.247
   gather_facts: true
   become: true
   
@@ -27,7 +28,7 @@
         stdin: "{{ curl_output.stdout }}"
  
     - name: Add Jenkins APT repository
-       ansible.builtin.shell: 
+      ansible.builtin.shell: 
         'echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee -a /etc/apt/sources.list.d/jenkins.list'
 
     - name: Update APT cache
