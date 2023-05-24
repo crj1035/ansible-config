@@ -50,8 +50,16 @@ fi
 sudo -u $username ssh-keygen -t rsa -b 4096 -f "$ssh_dir/id_rsa" -q -N ""
 echo "Clé publique RSA générée pour l'utilisateur $username :"
 cat "$ssh_dir/id_rsa.pub"
+chmod 400 "$ssh_dir/id_rsa.pub"
 
+# Installation du paquet sshpass
+apt-get install sshpass
 
-  
-
- 
+# copie de la clé ssh sur la machine de PROD
+echo "Copie de la clé publique de christophe (attention pas root qui est utilisateur en cours) sur la machine OUTILS"
+su christophe
+cd /home/christophe/.ssh
+#read -s -p "Entrez le mot de passe SSH pour utilisateur username sur la machine distante OUTILS IP 172.16.0.89 : " motdepasse
+#sshpass -p "$motdepasse" ssh-copy-id -i "$ssh_dir/id_rsa.pub" $username@172.16.0.89
+echo $pwd
+ssh-copy-id -i "/home/christophe/.ssh/id_rsa.pub" christophe@172.16.0.89

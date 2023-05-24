@@ -1,0 +1,15 @@
+[all]
+172.16.0.247 ansible_user=christophe
+172.16.0.133 ansible_user=christophe
+
+# [outils:children]
+
+[grp-outils]
+outils  
+
+# [grp-prod]
+# prod  
+
+
+172.16.0.247 ansible_user=christophe
+172.16.0.133 ansible_user=christophe

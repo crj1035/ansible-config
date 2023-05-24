@@ -1,0 +1,23 @@
+---
+- name: Prepare base server
+  hosts: all
+  gather_facts: true
+
+  roles:
+    - defaults
+
+- name: Prepare base server
+  hosts: jenkins
+  gather_facts: true
+
+  roles:
+    - jenkins
+
+- name: Prepare base server
+  hosts: localhost
+  gather_facts: true
+
+  tasks:
+    - name: test variable
+      ansible.builtin.debug:
+        msg: "{{ ansible_os_family }}"
