@@ -1,5 +1,6 @@
 [serveurs]
-10.0.2.5 ansible_user=ansible ansible_python_interpreter=/usr/bin/python3
-10.0.2.7 ansible_user=ansible ansible_python_interpreter=/usr/bin/python3
-
+#10.0.2.5 ansible_user=ansible ansible_python_interpreter=/usr/bin/python3
+#10.0.2.7 ansible_user=ansible ansible_python_interpreter=/usr/bin/python3
+172.16.0.247 ansible_user=christophe
+172.16.0.233 ansible_user=christophe
 
